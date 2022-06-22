@@ -1,0 +1,159 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct wydatki {
+    int data;
+    struct wydatki *nastepny;
+} *head = NULL;
+
+void dodaj_od_glowy(int kwota) {
+    struct wydatki *nowy_wydatek;
+    nowy_wydatek = (struct wydatki *) malloc(sizeof(struct wydatki));
+    nowy_wydatek->data = kwota;
+    if (head == NULL) {
+        nowy_wydatek->nastepny = NULL;
+        head = nowy_wydatek;
+    } else {
+        nowy_wydatek->nastepny = head;
+        head = nowy_wydatek;
+    }
+    printf("\nWydatek zostal dodany na poczatek listy.\n");
+}
+
+void dodaj_od_ogona(int kwota) {
+    struct wydatki *nowy_wydatek;
+    nowy_wydatek = (struct wydatki *) malloc(sizeof(struct wydatki));
+    nowy_wydatek->data = kwota;
+    nowy_wydatek->nastepny = NULL;
+    if (head == NULL)
+        head = nowy_wydatek;
+    else {
+        struct wydatki *temp = head;
+        while (temp->nastepny != NULL)
+            temp = temp->nastepny;
+        temp->nastepny = nowy_wydatek;
+    }
+    printf("\nWydatek zostal dodany na koniec listy.\n");
+}
+
+void usun_od_glowy() {
+    if (head == NULL)
+        printf("\n\nNie masz zadnych wydatkow.");
+    else {
+        struct wydatki *temp = head;
+        if (head->nastepny == NULL) {
+            head = NULL;
+            free(temp);
+        } else {
+            head = temp->nastepny;
+            free(temp);
+            printf("\nWydatek zostal usuniety z poczatku listy.\n\n");
+        }
+    }
+}
+
+void usun_od_ogona() {
+    if (head == NULL) {
+        printf("\nLNie masz zadnych wydatkow.\n");
+    } else {
+        struct wydatki *temp1 = head, *temp2;
+        if (head->nastepny == NULL)
+            head = NULL;
+        else {
+            while (temp1->nastepny != NULL) {
+                temp2 = temp1;
+                temp1 = temp1->nastepny;
+            }
+            temp2->nastepny = NULL;
+        }
+        free(temp1);
+        printf("\nWydatek zostal usuniety z konca listy.\n\n");
+    }
+}
+
+void usun_wybrana(int usun_kwote) {
+    struct wydatki *temp1 = head, *temp2;
+    while (temp1->data != usun_kwote) {
+        if (temp1->nastepny == NULL) {
+            printf("\nNie znaleziono w bazie takiego wydatku.");
+        }
+        temp2 = temp1;
+        temp1 = temp1->nastepny;
+    }
+    temp2->nastepny = temp1->nastepny;
+    free(temp1);
+    printf("\nWydatek zostal usuniety.\n\n");
+}
+
+void pokaz_liste() {
+    if (head == NULL) {
+        printf("\nW bazie nie ma zadnych wydatkow.\n");
+    } else {
+        struct wydatki *temp = head;
+        printf("\n\nTwoje obecne wydatki: \n");
+        while (temp->nastepny != NULL) {
+            printf("%d ---> ", temp->data);
+            temp = temp->nastepny;
+        }
+        printf("%d ---> NULL", temp->data);
+    }
+}
+
+int main() {
+    int opcja1;
+    int kwota1;
+    int opcja2;
+    int kwota2;
+    while (1) {
+        menu_opcji:
+        printf("\nWYDATKI\n1. Dodaj kwote.\n2. Pokaz liste.\n3. Usun kwote.\n4. Wyjdz z programu.\n\nCo chcesz zrobic?: ");
+        scanf("%d", &opcja1);
+        switch (opcja1) {
+            case 1:
+                printf("Wpisz kwote, jaka chcesz dodac: ");
+                scanf("%d", &kwota1);
+                while (1) {
+                    printf("Gdzie chcesz dodac kwote: \n1. Na poczatek listy.\n2. Na koniec listy.\nCo wybierasz: ");
+                    scanf("%d", &opcja2);
+                    switch (opcja2) {
+                        case 1:
+                            dodaj_od_glowy(kwota1);
+                            break;
+                        case 2:
+                            dodaj_od_ogona(kwota1);
+                            break;
+                    }
+                    goto menu_opcji;
+                }
+                break;
+
+            case 2:
+                pokaz_liste();
+                break;
+            case 3:
+                printf("Jaka kwote chcesz usunac: \n1. Z poczatku listy\n2. Z konca listy\n3. Wybrana przeze mnie\nCo chcesz wybrac: ");
+                scanf("%d", &opcja2);
+                switch (opcja2) {
+                    case 1:
+                        usun_od_glowy();
+                        break;
+                    case 2:
+                        usun_od_ogona(kwota1);
+                        break;
+                    case 3:
+                        printf("Wpisz kwote, ktora chcesz usunac: ");
+                        scanf("%d", &kwota2);
+                        usun_wybrana(kwota2);
+                        break;
+                    default:
+                        printf("\nBledna opcja, sprobuj ponownie.\n\n");
+                        goto menu_opcji;
+                }
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("\nBledna opcja, sprobuj ponownie.\n\n");
+        }
+    }
+}
